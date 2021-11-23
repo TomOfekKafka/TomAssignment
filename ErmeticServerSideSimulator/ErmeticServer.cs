@@ -49,7 +49,7 @@ namespace ErmeticServerSideSimulator
             _httpListener.Stop();
         }
 
-        public void ListenerCallback(IAsyncResult result)
+        private void ListenerCallback(IAsyncResult result)
         {
             HttpListener listener = (HttpListener)result.AsyncState;
             try
@@ -70,28 +70,32 @@ namespace ErmeticServerSideSimulator
         {
             Task.Run(() =>
             {
-                Thread.CurrentThread.IsBackground = false;
+                Thread.CurrentThread.IsBackground = false; //for server to exit gracefully and wait for all tasks to finish
                 var encapsulatedRequest = new HttpRequestEncapsulator(context.Request, DateTime.Now);
                 var handleRequestResult = _requestsHandler.HandleRequest(encapsulatedRequest);
                 var response = context.Response;
-                response.StatusCode = (int)handleRequestResult.HttpStatusCode;
-                string responseString = $"Status code is {handleRequestResult.HttpStatusCode} for request from client {handleRequestResult.ClientId} at time: {handleRequestResult.RequestTimeStamp:HH:mm:ss:fff}";
-                ConsoleDebugAssistant.PrintResponseStatusMessage(handleRequestResult.HttpStatusCode, responseString);
-                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
-                response.ContentLength64 = buffer.Length;
-                System.IO.Stream output = response.OutputStream;
-                try
-                {
-                    output.Write(buffer, 0, buffer.Length);
-                    output.Close();
-                }
-
-                catch (ObjectDisposedException)
-                {
-                    Console.WriteLine("Server is already closed. Can't process");
-                }
-                
+                TransmitResponse(response, handleRequestResult);
             });
+        }
+
+        private void TransmitResponse(HttpListenerResponse response, HandleRequestResult handleRequestResult)
+        {
+            response.StatusCode = (int)handleRequestResult.HttpStatusCode;
+            string responseString = $"Status code is {handleRequestResult.HttpStatusCode} for request from client {handleRequestResult.ClientId} at time: {handleRequestResult.RequestTimeStamp:HH:mm:ss:fff}";
+            ConsoleDebugAssistant.PrintResponseStatusMessage(handleRequestResult.HttpStatusCode, responseString);
+            byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+            response.ContentLength64 = buffer.Length;
+            System.IO.Stream output = response.OutputStream;
+            try
+            {
+                output.Write(buffer, 0, buffer.Length);
+                output.Close();
+            }
+
+            catch (ObjectDisposedException)
+            {
+                Console.WriteLine("Server is already closed. Can't process");
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ namespace ErmeticServerSideSimulator
 {
     public class ClientRequestsRateWatcherByFixedInterval : IClientRequestsRateWatcher
     {
-        private TimeSpan _requestsTimeFrame = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan _requestsTimeFrame = TimeSpan.FromSeconds(5);
         private const int NumOfAllowedRequestsForTimeFrame = 5;
         
         private DateTime _currentStartTimeOfTimeFrame;
@@ -21,7 +21,7 @@ namespace ErmeticServerSideSimulator
 
         public bool UpdateAboutRequestAndReturnAvailability(DateTime requestTime)
         {
-            if (requestTime - _currentStartTimeOfTimeFrame >= _requestsTimeFrame)
+            if (requestTime - _currentStartTimeOfTimeFrame > _requestsTimeFrame)
             {
                 _currentStartTimeOfTimeFrame = requestTime;
                 _numOfRequestsReceivedForCurrentTimeFrame = 1;
