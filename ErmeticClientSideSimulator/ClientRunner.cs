@@ -25,7 +25,7 @@ namespace ErmeticClientSideSimulator
         {
             Task.Run(async() =>
             {
-                Thread.CurrentThread.IsBackground = false;
+                Thread.CurrentThread.IsBackground = false; //for client to exit gracefully and wait for all tasks to finish
                 var random = new Random();
                 while (!lifetimeManager.ShouldStop())
                 {

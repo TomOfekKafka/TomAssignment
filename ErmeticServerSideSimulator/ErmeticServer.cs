@@ -55,7 +55,7 @@ namespace ErmeticServerSideSimulator
             try
             {
                 HttpListenerContext context = listener.EndGetContext(result);
-                HandleRequest(context);
+                HandleRequest(context, DateTime.Now);
             }
 
             catch (HttpListenerException)
@@ -66,12 +66,12 @@ namespace ErmeticServerSideSimulator
             
         }
 
-        private void HandleRequest(HttpListenerContext context)
+        private void HandleRequest(HttpListenerContext context, DateTime requestTime)
         {
             Task.Run(() =>
             {
                 Thread.CurrentThread.IsBackground = false; //for server to exit gracefully and wait for all tasks to finish
-                var encapsulatedRequest = new HttpRequestEncapsulator(context.Request, DateTime.Now);
+                var encapsulatedRequest = new HttpRequestEncapsulator(context.Request, requestTime);
                 var handleRequestResult = _requestsHandler.HandleRequest(encapsulatedRequest);
                 var response = context.Response;
                 TransmitResponse(response, handleRequestResult);
