@@ -83,6 +83,7 @@ namespace ErmeticServerSideSimulator
             response.StatusCode = (int)handleRequestResult.HttpStatusCode;
             string responseString = $"Status code is {handleRequestResult.HttpStatusCode} for request from client {handleRequestResult.ClientId} at time: {handleRequestResult.RequestTimeStamp:HH:mm:ss:fff}";
             ConsoleDebugAssistant.PrintResponseStatusMessage(handleRequestResult.HttpStatusCode, responseString);
+            
             byte[] buffer = Encoding.UTF8.GetBytes(responseString);
             response.ContentLength64 = buffer.Length;
             System.IO.Stream output = response.OutputStream;
