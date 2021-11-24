@@ -16,7 +16,7 @@ namespace ErmeticServerSideSimulator
         public ClientRequestsRateWatcherByFixedInterval(DateTime initialTimeStamp)
         {
             _currentStartTimeOfTimeFrame = initialTimeStamp;
-            _numOfRequestsReceivedForCurrentTimeFrame = 1;
+            _numOfRequestsReceivedForCurrentTimeFrame = 0;
         }
 
         public bool UpdateAboutRequestAndReturnAvailability(DateTime requestTime)

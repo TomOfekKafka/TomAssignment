@@ -17,13 +17,26 @@ namespace ErmeticServerSideSimulator
         {
             var clientId = RetrieveClientIdFromRequest(encapsulatedRequest.Request);
             if (clientId == null) return HandleRequestResult.Create(HttpStatusCode.BadRequest, null, encapsulatedRequest.RequestTimeStamp);
+            
+            var canProcessRequest = UpdateAboutRequestAndCheckIfCanProcess(clientId, encapsulatedRequest);
+            return ProcessRequestByAvailability(encapsulatedRequest, canProcessRequest, clientId);
+        }
+
+        private bool UpdateAboutRequestAndCheckIfCanProcess(string clientId, HttpRequestEncapsulator encapsulatedRequest)
+        {
             lock (this)
             {
                 IClientRequestsRateWatcher watcher = _clientsValidationManager.GetOrAdd(clientId, encapsulatedRequest.RequestTimeStamp);
                 var canProcessRequest = watcher.UpdateAboutRequestAndReturnAvailability(encapsulatedRequest.RequestTimeStamp);
-                var httpStatusCode = canProcessRequest ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable;
-                return HandleRequestResult.Create(httpStatusCode, clientId, encapsulatedRequest.RequestTimeStamp);
+                return canProcessRequest;
             }
+        }
+
+        private HandleRequestResult ProcessRequestByAvailability(HttpRequestEncapsulator encapsulatedRequest,
+            bool canProcessRequest, string clientId)
+        {
+            var httpStatusCode = canProcessRequest ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable;
+            return HandleRequestResult.Create(httpStatusCode, clientId, encapsulatedRequest.RequestTimeStamp);
         }
 
         private string RetrieveClientIdFromRequest(HttpListenerRequest request)

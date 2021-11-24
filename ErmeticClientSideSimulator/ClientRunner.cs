@@ -13,7 +13,7 @@ namespace ErmeticClientSideSimulator
         private readonly string _clientIdentifier;
         private readonly HttpClient _httpClient;
 
-        private const int MaxTimeToWaitInMiliSeconds = 1500;
+        private const int MaxTimeToWaitInMilliSeconds = 1500;
 
         public ClientRunner()
         {
@@ -30,9 +30,9 @@ namespace ErmeticClientSideSimulator
                 while (!lifetimeManager.ShouldStop())
                 {
                     var response = await _httpClient.GetAsync($"http://localhost:8080?clientId={_clientIdentifier}");
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    ConsoleDebugAssistant.PrintResponseStatusMessage(response.StatusCode, responseBody);
-                    var timeToWait = random.Next() % MaxTimeToWaitInMiliSeconds;
+                    string responseStr = await response.Content.ReadAsStringAsync();
+                    ConsoleDebugAssistant.PrintResponseStatusMessage(response.StatusCode, responseStr);
+                    var timeToWait = random.Next() % MaxTimeToWaitInMilliSeconds;
                     await Task.Delay(timeToWait);
                 }
                 

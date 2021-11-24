@@ -15,13 +15,13 @@ namespace ErmeticServerSideSimulator
 
         public IClientRequestsRateWatcher GetOrAdd(string clientId, DateTime initialTimeStamp)
         {
-            if (_clientToWatcher.TryGetValue(clientId, out IClientRequestsRateWatcher clientWatcher))
+            _clientToWatcher.TryGetValue(clientId, out IClientRequestsRateWatcher clientWatcher);
+            if (clientWatcher == null)
             {
-                return clientWatcher;
+                clientWatcher = new ClientRequestsRateWatcherByFixedInterval(initialTimeStamp);
+                _clientToWatcher[clientId] = clientWatcher;
             }
-            var clientBehaviorWatcher = new ClientRequestsRateWatcherByFixedInterval(initialTimeStamp);
-            _clientToWatcher[clientId] = clientBehaviorWatcher;
-            return clientBehaviorWatcher;
+            return clientWatcher;
         }
 
     }
